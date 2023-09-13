@@ -1,23 +1,29 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 
-string textPath = @"C:\Users\zacharie.montreuil\source\repos\W23\IOLesson\IOLesson\theMachineStops.txt";
+string textPath = @".\..\..\..\theMachineStops.txt";
 
 FileInfo textFile = new FileInfo(textPath);
 
 string fullText = "";
 
-using(StreamReader reader = textFile.OpenText())
+try
 {
-    fullText = reader.ReadToEnd();
-}
+    using (StreamReader reader = textFile.OpenText())
+    {
+        fullText = reader.ReadToEnd();
+    }
 
-List<string> words = GetWordList(fullText);
-Dictionary<string, int> wordCount = GetWordCounts(words);
+    List<string> words = GetWordList(fullText);
+    Dictionary<string, int> wordCount = GetWordCounts(words);
 
-foreach(KeyValuePair<string, int> word in wordCount)
+    foreach (KeyValuePair<string, int> word in wordCount)
+    {
+        Console.WriteLine($"{word.Key}: {word.Value}");
+    }
+} catch(Exception ex)
 {
-    Console.WriteLine($"{word.Key}: {word.Value}");
+    Console.WriteLine(ex.Message);
 }
 
 List<string> GetWordList(string text)
