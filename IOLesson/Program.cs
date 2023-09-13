@@ -1,44 +1,52 @@
-﻿// Binary serialization
-// public and private members of an object, the name of the object, and the assembly that it's part of
+﻿using System.IO;
+using System.Text.RegularExpressions;
 
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+string textPath = @"C:\Users\zacharie.montreuil\source\repos\W23\IOLesson\IOLesson\theMachineStops.txt";
 
-string binPath = @"C:\Users\zacharie.montreuil\source\repos\W23\IOLesson\IOLesson\ioFile.bin";
+FileInfo textFile = new FileInfo(textPath);
 
-IFormatter binFormatter = new BinaryFormatter();
+string fullText = "";
 
-SerializedObject binObj = new SerializedObject() { Name = "Binfile Bob", Age = 42 };
-
-try
+using(StreamReader reader = textFile.OpenText())
 {
-    // serializing a C# object
-    using (Stream fileStream = new FileStream(binPath, FileMode.Create, FileAccess.Write, FileShare.None))
-    {
-        binFormatter.Serialize(fileStream, binObj);
-    }
-
-    // deserialize: translate bin file to C# object
-    using (Stream deStream = new FileStream(binPath, FileMode.Open, FileAccess.Read))
-    {
-        SerializedObject deserializedObject = (SerializedObject)binFormatter.Deserialize(deStream);
-
-        Console.WriteLine(deserializedObject.Name);
-        Console.WriteLine(deserializedObject.Age);
-    }
-} catch (IOException ex)
-{
-    Console.WriteLine($"I/OException: {ex.Message}");
-} catch (Exception ex)
-{
-    Console.WriteLine(ex.Message);
+    fullText = reader.ReadToEnd();
 }
 
+List<string> words = GetWordList(fullText);
+Dictionary<string, int> wordCount = GetWordCounts(words);
 
-[Serializable]
-public class SerializedObject
+foreach(KeyValuePair<string, int> word in wordCount)
 {
-    public string Name { get; set; }
-    public int Age { get; set; }
+    Console.WriteLine($"{word.Key}: {word.Value}");
 }
 
+List<string> GetWordList(string text)
+{
+    // normalize by setting to lower case
+    text = text.ToUpper();
+
+    char[] delimiters = new char[] { ',', '.', ';', ':', '!', '?', '-', '—', '(', ')', '[', ']', '{', '}', '<', '>', '/', '\\', '|', '_', '*', '&', '#', '@', '%', '$', '^', '=', '+', '~', '`', '"', ' ', '\n', '\r' };
+
+
+    List<string> words = text.Split(delimiters).ToList();
+
+    words.RemoveAll(s => s == "");
+    return words;
+}
+
+Dictionary<string, int> GetWordCounts(ICollection<string> words)
+{
+    Dictionary<string, int> wordCount = new Dictionary<string, int>();
+
+    foreach(string s in words)
+    {
+        if(wordCount.ContainsKey(s)) {
+            wordCount[s]++;
+        } else
+        {
+            wordCount.Add(s, 1);
+        }
+    }
+
+    return wordCount;
+}
