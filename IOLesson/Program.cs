@@ -3,36 +3,32 @@
 
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Xml.Serialization;
 
-string binPath = @"C:\Users\zacharie.montreuil\source\repos\W23\IOLesson\IOLesson\ioFile.bin";
+string path = @"C:\Users\zacharie.montreuil\source\repos\W23\IOLesson\IOLesson\ioFile.json";
 
-IFormatter binFormatter = new BinaryFormatter();
+SerializedObject serObj = new SerializedObject() { Name = "Name", Age = 32 };
 
-SerializedObject binObj = new SerializedObject() { Name = "Binfile Bob", Age = 42 };
+string jsonString = JsonSerializer.Serialize(serObj);
+
+Console.WriteLine(jsonString);
 
 try
 {
-    // serializing a C# object
-    using (Stream fileStream = new FileStream(binPath, FileMode.Create, FileAccess.Write, FileShare.None))
-    {
-        binFormatter.Serialize(fileStream, binObj);
-    }
+    //File.WriteAllText(path, jsonString);
+    string textJson = File.ReadAllText(path);
 
-    // deserialize: translate bin file to C# object
-    using (Stream deStream = new FileStream(binPath, FileMode.Open, FileAccess.Read))
-    {
-        SerializedObject deserializedObject = (SerializedObject)binFormatter.Deserialize(deStream);
+    serObj = JsonSerializer.Deserialize<SerializedObject>(textJson);
 
-        Console.WriteLine(deserializedObject.Name);
-        Console.WriteLine(deserializedObject.Age);
-    }
-} catch (IOException ex)
-{
-    Console.WriteLine($"I/OException: {ex.Message}");
+    Console.WriteLine(serObj.ToString());
 } catch (Exception ex)
 {
-    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex.ToString());   
 }
+
+
+
 
 
 [Serializable]
